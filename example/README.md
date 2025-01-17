@@ -19,8 +19,36 @@ docker build -t securefs:v1 .
 
 Run the container.
 
+### privileged mode
 ```bash
 docker run --rm -d --privileged -e SECUREFS_PASSWORD=your-password -v /encrypted:/encrypted securefs:v1 sleep 360
+```
+
+### non-root mode
+
+Enable FUSE mount by non-root user.
+
+```bash
+vim /etc/fuse.conf
+
+...
+# Allow non-root users to specify the allow_other or allow_root mount options.
+user_allow_other
+...
+```
+
+Docker run.
+
+```bash
+docker run --rm -it \
+--device /dev/fuse \
+--cap-add SYS_ADMIN \
+--cap-add MKNOD \
+--security-opt apparmor:unconfined \
+-e SECUREFS_PASSWORD=your-password \
+-v /encrypted:/encrypted \
+securefs:v1 \
+/bin/bash
 ```
 
 ## Verification
